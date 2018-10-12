@@ -8,12 +8,15 @@ import Icon from 'vue-awesome'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Pagination } from 'bootstrap-vue/es/components'
+import VueNativeSock from 'vue-native-websocket'
+
 
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(Pagination)
+Vue.use(VueNativeSock, 'ws://localhost:9091', { format: 'json' })
 
-Vue.config.productionTip = true
+Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({

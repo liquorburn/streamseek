@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <status/>
     <h1>streamseek</h1>
     <h2>because music is everywhere</h2>
     <router-view/>
@@ -7,8 +8,13 @@
 </template>
 
 <script>
+import Status from '@/components/status/Status'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    Status
+  }
 }
 </script>
 
@@ -19,7 +25,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 35px;
+  margin-top: 4px;
   background: #fdfffc none;
 }
 #app h1 {

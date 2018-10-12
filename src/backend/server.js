@@ -8,10 +8,10 @@ const login = require('./login')
 const transformResponse = require('./transform-response')
 var jsonDB = require('./jsondata')
 // AB for testing only:
-// function bufferFile(absPath) {
-//   return fs.readFileSync(absPath, { encoding: 'utf8' });
-// }
-// let fakeData = bufferFile(projectFolder + '/json_test.json')
+function bufferFile(absPath) {
+  return fs.readFileSync(absPath, { encoding: 'utf8' });
+}
+let fakeData = bufferFile(projectFolder + '/json_test.json')
 
 this.client = undefined
 
@@ -56,45 +56,45 @@ app.post('/login', function (req, res) {
 
 app.post('/search', function (req, res) {
   // TESTING ONLY! using physical json file:
-  // jsonDB.write(req.body.username, fakeData).then(function(paged) {
-  //   var pagCnt = Math.ceil(jsonDB.count(req.body.username)
-  //             / jsonDB.getProp("per_page", req.body.username))
-  //   if (0 === pagCnt) pagCnt = 1
-  //   res.status(200).json({
-  //     count: jsonDB.count(req.body.username),
-  //     page: jsonDB.getProp("pageNum", req.body.username),
-  //     pageCount: pagCnt,
-  //     limit: jsonDB.getProp("per_page", req.body.username),
-  //     pagedResults: paged
-  //   })
-  // }).catch(error => {
-  //   console.log('in catch! ' + error)
-  //   res.status(500).json({message: error})
-  // })
+  jsonDB.write(req.body.username, fakeData).then(function(paged) {
+    var pagCnt = Math.ceil(jsonDB.count(req.body.username)
+              / jsonDB.getProp("per_page", req.body.username))
+    if (0 === pagCnt) pagCnt = 1
+    res.status(200).json({
+      count: jsonDB.count(req.body.username),
+      page: jsonDB.getProp("pageNum", req.body.username),
+      pageCount: pagCnt,
+      limit: jsonDB.getProp("per_page", req.body.username),
+      pagedResults: paged
+    })
+  }).catch(error => {
+    console.log('in catch! ' + error)
+    res.status(500).json({message: error})
+  })
 
   // using ram to store the actual search results:
-  this.client.search(req.body, (err, results) => {
-    if (err) {
-      res.status(500).json({ message: err, type: typeof err })
-    } else {
-      jsonDB.write(req.body.username, transformResponse(results)).then(function(paged) {
-        var pagCnt = Math.ceil(jsonDB.count(req.body.username)
-                   / jsonDB.getProp("per_page", req.body.username))
-        if (0 === pagCnt) pagCnt = 1
-        res.status(200).json({
-          count: jsonDB.count(req.body.username),
-          page: jsonDB.getProp("pageNum", req.body.username),
-          pageCount: pagCnt,
-          limit: jsonDB.getProp("per_page", req.body.username),
-          pagedResults: paged
-        })
-      }).catch(error => {
-        console.log(error)
-        res.status(500).json({message: error, type:'catch! ' + typeof err})
-      })
-      // res.json(transformResponse(results))
-    }
-  })
+  // this.client.search(req.body, (err, results) => {
+  //   if (err) {
+  //     res.status(500).json({ message: err, type: typeof err })
+  //   } else {
+  //     jsonDB.write(req.body.username, transformResponse(results)).then(function(paged) {
+  //       var pagCnt = Math.ceil(jsonDB.count(req.body.username)
+  //                  / jsonDB.getProp("per_page", req.body.username))
+  //       if (0 === pagCnt) pagCnt = 1
+  //       res.status(200).json({
+  //         count: jsonDB.count(req.body.username),
+  //         page: jsonDB.getProp("pageNum", req.body.username),
+  //         pageCount: pagCnt,
+  //         limit: jsonDB.getProp("per_page", req.body.username),
+  //         pagedResults: paged
+  //       })
+  //     }).catch(error => {
+  //       console.log(error)
+  //       res.status(500).json({message: error, type:'catch! ' + typeof err})
+  //     })
+  //     // res.json(transformResponse(results))
+  //   }
+  // })
 })
 
 app.get('/play/:key', function (req, res) {

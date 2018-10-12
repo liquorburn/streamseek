@@ -137,9 +137,6 @@
 <script>
 import Aplayer from 'vue-aplayer'
 
-// import jsonData from '../backend/jsondata'
-// var jsonData = require('../backend/jsondata')
-// console.log(typeof jsonData)
 export default {
   name: 'Search',
   components: {
