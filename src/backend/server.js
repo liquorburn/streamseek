@@ -6,6 +6,27 @@ const path = require('path');
 const projectFolder = require('os').homedir().concat('/.streamseek')
 const login = require('./login')
 const transformResponse = require('./transform-response')
+const WebSocket = require('ws');
+
+const wssrv = new WebSocket.Server({ port: 9091 });
+
+wssrv.on('connection', function connection(ws) {
+  console.log("client connected to ws server")
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message)
+    //ws.send('wella')
+  })
+  let intervalId = setInterval(function() {
+    let clientStatus = typeof this.client
+    if (clientStatus != "undefined")
+      ws.send("connected")
+  }, 5000)
+  ws.on('close', function() {
+    console.log("client disconnected from ws server")
+    clearInterval(intervalId)
+  })
+})
+
 var jsonDB = require('./jsondata')
 // AB for testing only:
 function bufferFile(absPath) {

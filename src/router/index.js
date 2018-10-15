@@ -5,6 +5,7 @@ import VueResource from 'vue-resource'
 import Login from '@/components/login/Login'
 import Search from '@/components/search/Search'
 import NotFound from '@/components/notfound/NotFound'
+import Status from '@/components/status/Status'
 
 Vue.use(Router)
 Vue.use(VueResource)
@@ -25,6 +26,11 @@ export default new Router({
       path: '/results/:page/:limit',
       name: 'Results',
       component: Search
+    },
+    {
+      path: '/ws',
+      name: 'Status',
+      component: Status
     },
     {
       path: '*',

@@ -2,7 +2,7 @@
   <b-container fluid>
     <b-row class="justify-content-center">
       <b-col class="col-12 text-right">
-        <h6>Client status: {{ message }}</h6>
+        <h6>Client status: {{ socketMessage }}</h6>
       </b-col>
     </b-row>
   </b-container>
@@ -14,16 +14,20 @@ export default {
   name: 'Status',
   data () {
     return {
-      message: ''
+      socketMessage: 'disconnected'
     }
   },
-  created: function () {
-    this.$socket.send('some data')
-    let t = this
-    this.$options.sockets.onmessage = (data) => t.message = data
-    this.message = 'wella'
+  mounted: function () {
+    this.$nextTick(function () {
+      let t = this
+      // this.$socket.sendObj({ awesome: 'data' })
+      this.$options.sockets.onmessage = function (data) {
+        t.socketMessage = data.data
+      }
+    })
   },
   methods: {
+
   }
 }
 </script>
