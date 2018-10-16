@@ -2,7 +2,7 @@
   <b-container fluid>
     <b-row class="justify-content-center">
       <b-col class="col-12 text-right">
-        <h6>Client status: {{ socketMessage }}</h6>
+        <h6>{{ socketMessage }}</h6>
       </b-col>
     </b-row>
   </b-container>
@@ -14,7 +14,7 @@ export default {
   name: 'Status',
   data () {
     return {
-      socketMessage: 'disconnected'
+      socketMessage: 'You are not logged in'
     }
   },
   mounted: function () {
@@ -23,6 +23,12 @@ export default {
       // this.$socket.sendObj({ awesome: 'data' })
       this.$options.sockets.onmessage = function (data) {
         t.socketMessage = data.data
+      }
+      this.$options.sockets.onreconnect = function () {
+        t.socketMessage = 'Back online'
+      }
+      this.$options.sockets.onclose = function (data) {
+        t.socketMessage = 'Server is down'
       }
     })
   },

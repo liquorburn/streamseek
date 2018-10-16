@@ -8,18 +8,25 @@ const login = require('./login')
 const transformResponse = require('./transform-response')
 const WebSocket = require('ws');
 
-const wssrv = new WebSocket.Server({ port: 9091 });
+const wsSrv = new WebSocket.Server({ port: 9091 }, function () {
+})
 
-wssrv.on('connection', function connection(ws) {
+let slskClient = undefined
+
+wsSrv.on('listening', function listening(ws) {
+  console.log('ws server listening')
+})
+wsSrv.on('connection', function connection(ws) {
   console.log("client connected to ws server")
   ws.on('message', function incoming(message) {
     console.log('received: %s', message)
-    //ws.send('wella')
+    //ws.send('test')
   })
   let intervalId = setInterval(function() {
-    let clientStatus = typeof this.client
+    let clientStatus = typeof slskClient
     if (clientStatus != "undefined")
-      ws.send("connected")
+      ws.send("Logged in as " + slskClient.username)
+    else ws.send("You are not logged in")
   }, 5000)
   ws.on('close', function() {
     console.log("client disconnected from ws server")
@@ -29,12 +36,10 @@ wssrv.on('connection', function connection(ws) {
 
 var jsonDB = require('./jsondata')
 // AB for testing only:
-function bufferFile(absPath) {
-  return fs.readFileSync(absPath, { encoding: 'utf8' });
-}
-let fakeData = bufferFile(projectFolder + '/json_test.json')
-
-this.client = undefined
+// function bufferFile(absPath) {
+//   return fs.readFileSync(absPath, { encoding: 'utf8' });
+// }
+// let fakeData = bufferFile(projectFolder + '/json_test.json')
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -65,7 +70,8 @@ app.post('/login', function (req, res) {
   console.log('Login request for user ' + req.body.username)
   login(req.body.username, req.body.password)
     .then(client => {
-      this.client = client
+      slskClient = client
+      slskClient.username = req.body.username
       console.log('Login successful');
       res.status(204).json({ message: 'client connected' })
     })
@@ -77,45 +83,45 @@ app.post('/login', function (req, res) {
 
 app.post('/search', function (req, res) {
   // TESTING ONLY! using physical json file:
-  jsonDB.write(req.body.username, fakeData).then(function(paged) {
-    var pagCnt = Math.ceil(jsonDB.count(req.body.username)
-              / jsonDB.getProp("per_page", req.body.username))
-    if (0 === pagCnt) pagCnt = 1
-    res.status(200).json({
-      count: jsonDB.count(req.body.username),
-      page: jsonDB.getProp("pageNum", req.body.username),
-      pageCount: pagCnt,
-      limit: jsonDB.getProp("per_page", req.body.username),
-      pagedResults: paged
-    })
-  }).catch(error => {
-    console.log('in catch! ' + error)
-    res.status(500).json({message: error})
-  })
+  // jsonDB.write(req.body.username, fakeData).then(function(paged) {
+  //   var pagCnt = Math.ceil(jsonDB.count(req.body.username)
+  //             / jsonDB.getProp("per_page", req.body.username))
+  //   if (0 === pagCnt) pagCnt = 1
+  //   res.status(200).json({
+  //     count: jsonDB.count(req.body.username),
+  //     page: jsonDB.getProp("pageNum", req.body.username),
+  //     pageCount: pagCnt,
+  //     limit: jsonDB.getProp("per_page", req.body.username),
+  //     pagedResults: paged
+  //   })
+  // }).catch(error => {
+  //   console.log('in catch! ' + error)
+  //   res.status(500).json({message: error})
+  // })
 
   // using ram to store the actual search results:
-  // this.client.search(req.body, (err, results) => {
-  //   if (err) {
-  //     res.status(500).json({ message: err, type: typeof err })
-  //   } else {
-  //     jsonDB.write(req.body.username, transformResponse(results)).then(function(paged) {
-  //       var pagCnt = Math.ceil(jsonDB.count(req.body.username)
-  //                  / jsonDB.getProp("per_page", req.body.username))
-  //       if (0 === pagCnt) pagCnt = 1
-  //       res.status(200).json({
-  //         count: jsonDB.count(req.body.username),
-  //         page: jsonDB.getProp("pageNum", req.body.username),
-  //         pageCount: pagCnt,
-  //         limit: jsonDB.getProp("per_page", req.body.username),
-  //         pagedResults: paged
-  //       })
-  //     }).catch(error => {
-  //       console.log(error)
-  //       res.status(500).json({message: error, type:'catch! ' + typeof err})
-  //     })
-  //     // res.json(transformResponse(results))
-  //   }
-  // })
+  slskClient.search(req.body, (err, results) => {
+    if (err) {
+      res.status(500).json({ message: err, type: typeof err })
+    } else {
+      jsonDB.write(req.body.username, transformResponse(results)).then(function(paged) {
+        var pagCnt = Math.ceil(jsonDB.count(req.body.username)
+                   / jsonDB.getProp("per_page", req.body.username))
+        if (0 === pagCnt) pagCnt = 1
+        res.status(200).json({
+          count: jsonDB.count(req.body.username),
+          page: jsonDB.getProp("pageNum", req.body.username),
+          pageCount: pagCnt,
+          limit: jsonDB.getProp("per_page", req.body.username),
+          pagedResults: paged
+        })
+      }).catch(error => {
+        console.log(error)
+        res.status(500).json({message: error, type:'catch! ' + typeof err})
+      })
+      // res.json(transformResponse(results))
+    }
+  })
 })
 
 app.get('/play/:key', function (req, res) {
@@ -131,7 +137,7 @@ app.get('/play/:key', function (req, res) {
     stream.on('end', () => res.end())
   } else {
     console.log('Prefetch not exists, get: ' + request[1] + ' directly from peer')
-    this.client.downloadStream({
+    slskClient.downloadStream({
         file: {
           user: request[0],
           file: request[1]
@@ -163,7 +169,7 @@ app.get('/fetch/:file', function (req, res) {
                       .toString('ascii')
                       .split('|')
   console.log('Fetch from user ' + request[0] + ' this song: ' + request[1])
-  this.client.downloadStream({
+  slskClient.downloadStream({
       file: {
         user: request[0],
         file: request[1]

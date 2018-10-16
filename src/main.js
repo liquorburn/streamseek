@@ -10,10 +10,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Pagination } from 'bootstrap-vue/es/components'
 import VueNativeSock from 'vue-native-websocket'
 
-Vue.use(VueNativeSock, 'ws://localhost:9091', { format: 'json' })
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(Pagination)
+Vue.use(VueNativeSock, 'ws://localhost:9091', { format: 'json' })
 
 Vue.config.productionTip = true
 
