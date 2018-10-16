@@ -84,13 +84,8 @@
           <b-row>
 
             <b-collapse class="collapse-wrapper w-100" :id="'collapse-' + index">
-
-              <!-- <b-container> -->
                 <b-container v-for="(song, idx) in folder.songs" v-bind:key="song.name">
                   <b-row>
-                    <!-- <b-col cols="1">
-                      <span/>
-                    </b-col> -->
                     <b-col class="d-flex justify-content-center align-items-center" cols="1" offset="1">
                       <a :key="'playSong' + idx + '_' + index" href="#" @click="play(folder, song)">
                         <icon name="play-circle-o" scale="2"></icon>
@@ -109,8 +104,6 @@
                     </b-col>
                   </b-row>
                 </b-container>
-              <!-- </b-container> -->
-
             </b-collapse>
           </b-row>
         </div>

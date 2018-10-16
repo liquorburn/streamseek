@@ -13,7 +13,12 @@ import VueNativeSock from 'vue-native-websocket'
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(Pagination)
-Vue.use(VueNativeSock, 'ws://localhost:9091', { format: 'json' })
+Vue.use(VueNativeSock, 'ws://localhost:9091', {
+  format: 'json',
+  reconnection: true,
+  // reconnectionAttempts: 5,
+  reconnectionDelay: Math.round(Math.random() * (6000 - 2000) + 2000)
+})
 
 Vue.config.productionTip = true
 

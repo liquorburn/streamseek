@@ -6,40 +6,17 @@ const path = require('path');
 const projectFolder = require('os').homedir().concat('/.streamseek')
 const login = require('./login')
 const transformResponse = require('./transform-response')
-const WebSocket = require('ws');
-
-const wsSrv = new WebSocket.Server({ port: 9091 }, function () {
-})
-
-let slskClient = undefined
-
-wsSrv.on('listening', function listening(ws) {
-  console.log('ws server listening')
-})
-wsSrv.on('connection', function connection(ws) {
-  console.log("client connected to ws server")
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message)
-    //ws.send('test')
-  })
-  let intervalId = setInterval(function() {
-    let clientStatus = typeof slskClient
-    if (clientStatus != "undefined")
-      ws.send("Logged in as " + slskClient.username)
-    else ws.send("You are not logged in")
-  }, 5000)
-  ws.on('close', function() {
-    console.log("client disconnected from ws server")
-    clearInterval(intervalId)
-  })
-})
-
+const webSock = require('./websocket.js')
 var jsonDB = require('./jsondata')
+
 // AB for testing only:
 // function bufferFile(absPath) {
 //   return fs.readFileSync(absPath, { encoding: 'utf8' });
 // }
 // let fakeData = bufferFile(projectFolder + '/json_test.json')
+// end testing only
+
+let slskClient = undefined
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

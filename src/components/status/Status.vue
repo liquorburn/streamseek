@@ -24,9 +24,6 @@ export default {
       this.$options.sockets.onmessage = function (data) {
         t.socketMessage = data.data
       }
-      this.$options.sockets.onreconnect = function () {
-        t.socketMessage = 'Back online'
-      }
       this.$options.sockets.onclose = function (data) {
         t.socketMessage = 'Server is down'
       }
